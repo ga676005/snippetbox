@@ -11,6 +11,10 @@ import (
 // $ export SNIPPETBOX_ADDR=":9999"
 // $ go run ./cmd/web -addr=$SNIPPETBOX_ADDR
 
+// MYSQL 連線 db
+// ubuntu 執行 mysql -D snippetbox -u web -p
+// 輸入密碼
+
 type application struct {
 	logger *slog.Logger
 }
