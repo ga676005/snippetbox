@@ -5,10 +5,12 @@ import (
 	"path/filepath"
 )
 
+const staticDir = "./ui/static/"
+
 func (app *application) routes() *http.ServeMux {
 	mux := http.NewServeMux()
 
-	fileServer := http.FileServer(neuteredFileSystem{http.Dir("./ui/static/")})
+	fileServer := http.FileServer(neuteredFileSystem{fs: http.Dir(staticDir)})
 	mux.Handle("GET /static", http.NotFoundHandler())
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 
