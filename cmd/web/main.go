@@ -1,11 +1,13 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
-	"log"
 	"log/slog"
 	"net/http"
 	"os"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // Chapter 3.1. 用環境變數 + cli flag
@@ -25,24 +27,17 @@ type application struct {
 
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address")
+	dsn := flag.String("dsn", "web:web@/snippetbox?parseTime=true", "MYSQL data source name")
 	flag.Parse()
 
-	file, err := os.OpenFile("mylog.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	logger := createLogger()
+
+	db, err := openDB(*dsn)
 	if err != nil {
-		log.Fatal(err)
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
-	logger := slog.New(slog.NewTextHandler(file, nil))
-	defer file.Close()
-	// 另外開一個 terminal 看 log
-	// tail -f ./mylog.log
-
-	// 一般 logger
-	// logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
-
-	// JSON logger
-	// logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-	// 	AddSource: true, // 會寫第幾行
-	// }))
+	defer db.Close()
 
 	app := &application{
 		logger: logger,
@@ -53,4 +48,19 @@ func main() {
 	err = http.ListenAndServe(*addr, app.routes())
 	logger.Error(err.Error())
 	os.Exit(1)
+}
+
+func openDB(dataSourceName string) (*sql.DB, error) {
+	db, err := sql.Open("mysql", dataSourceName)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Ping()
+	if err != nil {
+		db.Close()
+		return nil, err
+	}
+
+	return db, nil
 }
