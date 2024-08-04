@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/ga676005/snippetbox/internal/models"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -22,7 +23,8 @@ import (
 // $ go run ./cmd/web >>/tmp/web.log
 
 type application struct {
-	logger *slog.Logger
+	logger   *slog.Logger
+	snippets *models.SnippetModel
 }
 
 func main() {
@@ -40,7 +42,8 @@ func main() {
 	defer db.Close()
 
 	app := &application{
-		logger: logger,
+		logger:   logger,
+		snippets: &models.SnippetModel{DB: db},
 	}
 
 	logger.Info("starting server", slog.Any("addr", *addr))
