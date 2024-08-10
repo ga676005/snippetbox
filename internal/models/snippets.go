@@ -57,7 +57,7 @@ func (m *SnippetModel) Get(id int) (Snippet, error) {
 
 func (m *SnippetModel) Latest() ([]Snippet, error) {
 	query := `SELECT id, title, content, created, expires FROM snippets
-			  Where expires > UTC_TIMESTAMP() ORDER BY id DESC LIMIT 10`
+			  WHERE expires > UTC_TIMESTAMP() ORDER BY id DESC LIMIT 10`
 
 	rows, err := m.DB.Query(query)
 	if err != nil {
