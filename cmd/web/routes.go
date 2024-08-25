@@ -26,6 +26,7 @@ type neuteredFileSystem struct {
 	fs http.FileSystem
 }
 
+// 避免打開資料夾目錄
 func (nfs neuteredFileSystem) Open(path string) (http.File, error) {
 	f, err := nfs.fs.Open(path)
 	if err != nil {

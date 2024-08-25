@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -43,4 +44,20 @@ func createLogger() *slog.Logger {
 	// }))
 
 	return logger
+}
+
+func (app *application) render(w http.ResponseWriter, r *http.Request, status int, page string, data TemplateData) {
+	ts, ok := app.templateCache[page]
+	if !ok {
+		err := fmt.Errorf("the template %s does not exist", page)
+		app.serveError(w, r, err)
+		return
+	}
+
+	w.WriteHeader(status)
+
+	err := ts.ExecuteTemplate(w, "base", data)
+	if err != nil {
+		app.serveError(w, r, err)
+	}
 }
