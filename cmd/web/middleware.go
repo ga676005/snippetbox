@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 )
@@ -34,4 +35,39 @@ func (app *application) logRequest(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func (app *application) recoverPanic(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// 用 deferred function 因為它最後會執行到
+		defer func() {
+			// 用內建的 recover function
+			if err := recover(); err != nil {
+				// 設這個 GO 會自動關閉目前連線
+				w.Header().Set("Connection", "close")
+				app.serverError(w, r, fmt.Errorf("%s", err))
+			}
+		}()
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+// 如果 handler 有另外開 goroutine 做一些事，那上面加在 router 的 recoverPanic middleware 救不到
+// 所以要另外寫在 goroutine 裡
+func (app *application) myHandler(w http.ResponseWriter, r *http.Request) {
+	// some code ...
+
+	// 像這樣
+	go func() {
+		defer func() {
+			if err := recover(); err != nil {
+				app.logger.Error(fmt.Sprint(err))
+			}
+		}()
+
+		// doSomeBackgroundProcess()
+	}()
+
+	w.Write([]byte("OK"))
 }
