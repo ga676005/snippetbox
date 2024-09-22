@@ -43,7 +43,7 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 		defer func() {
 			// 用內建的 recover function
 			if err := recover(); err != nil {
-				// 設這個 GO 會自動關閉目前連線
+				// 設這個 HEADER，GO 會在送出 response 後自動關閉目前連線
 				w.Header().Set("Connection", "close")
 				app.serverError(w, r, fmt.Errorf("%s", err))
 			}
