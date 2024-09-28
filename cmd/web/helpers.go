@@ -83,7 +83,7 @@ func (app *application) decodePostForm(r *http.Request, destination any) error {
 		return err
 	}
 
-	// 如果 destination 的值為 invalid 會有 InvalidDecoderError
+	// 傳的東西不是 &abcStruct 的時候會有 form.InvalidDecoderError，代表 code 寫錯了所以用 Panic
 	err = app.formDecoder.Decode(destination, r.PostForm)
 	if err != nil {
 		var invalidDecodeError *form.InvalidDecoderError
