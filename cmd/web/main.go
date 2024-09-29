@@ -9,7 +9,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/alexedwards/scs/stores/mysqlstore"
+	"github.com/alexedwards/scs/mysqlstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/ga676005/snippetbox/internal/models"
 	"github.com/go-playground/form/v4"

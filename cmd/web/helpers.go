@@ -74,6 +74,9 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, status in
 func (app *application) newTemplateData(r *http.Request) TemplateData {
 	return TemplateData{
 		CurrentYear: time.Now().Year(),
+
+		// global 的訊息，如果有的話
+		Flash: app.sessionManager.PopString(r.Context(), "flash"),
 	}
 }
 
